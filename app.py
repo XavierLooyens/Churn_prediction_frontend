@@ -15,7 +15,7 @@ from PIL import Image, ImageOps
 
 st.set_page_config(
         page_title="Churn Prediction App",
-        page_icon="kkbox4.png",
+        page_icon=":chart_with_upwards_trend",
         layout="wide"
     )
 
@@ -66,23 +66,30 @@ page_bg_img = f"""
 }}
 
 img{{
-    max-width:45%;
+    max-width:10%;
     max-height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+
+
 }}
 
 [data-testid="block-container"]{{
-    padding-top:60px
+    padding-top:30px
 }}
 
+[class="g-gtitle"]{{
+    color: #00afd6;
+}}
 
 </style>
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
 # st.title("Churn Prediction App")
 
-st.image("KKBOXBSS.png", use_column_width=True)
+st.image("churn-rate2.png", use_column_width=True)
 
-st.markdown("""<p style="font-family:sans-serif;color:#00afd6; font-size: 50px;"> Churn Prediction app</p>
+st.markdown("""<p style="font-family:Helvetica;color:#00afd6; font-size: 70px; text-align: center; font-weight:bold;"> Churn Prediction app</p>
             <p style="font-family:sans-serif;color:#00afd6; font-size: 24px;"> Upload a csv file here</p>
 
             """,unsafe_allow_html=True )
@@ -224,13 +231,8 @@ def main():
             churn_count = new['Churn percentage'].apply(lambda x: 'High risk Churn' if x >= 90 else ('Medium Risk Churn' if x >= 50 else 'Low Risk Churn') )
             churn_counts = churn_count.value_counts()
 
-            custom_colors = ['#8bd3c7','#EA5F89','#F7B7A3','#9B3192']
-            fig = px.pie(new, values=churn_counts.values,
-                         names=churn_counts.index,
-                         title='Churn Distribution',
-                        #  color_discrete_sequence=custom_colors
-                         )
             fig = px.pie(new, values=churn_counts.values, names=churn_counts.index, color=churn_counts.index,
+                         title="Churn Distribution",
              color_discrete_map={'High risk Churn':'#EA5F89',
                                  'Medium Risk Churn':'#F7B7A3',
                                  'Low Risk Churn':'#8bd3c7',
