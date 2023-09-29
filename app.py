@@ -9,14 +9,83 @@ from sklearn.linear_model import LogisticRegression
 import joblib
 from io import StringIO
 import streamlit_ext as ste
+import base64
+from PIL import Image, ImageOps
+
 
 st.set_page_config(
         page_title="Churn Prediction App",
-        page_icon=":bar_chart",
+        page_icon="kkbox4.png",
         layout="wide"
     )
-st.title('📊Churn Prediction App')
 
+
+
+page_bg_img = f"""
+
+<style>
+[data-testid="stHeader"]{{
+    background-color:rgba(0,0,0,0);
+}}
+
+
+[class="css-6qob1r eczjsme3"]{{
+    font-family:sans-serif;
+    background-color:#00afd6 ;
+    color:white;
+}}
+
+[data-testid="baseButton-secondary"]{{
+    font-family:sans-serif;
+    background-color:white;
+    color:#00afd6
+}}
+
+[class="css-7ym5gk ef3psqc11"]{{
+    font-family:sans-serif;
+    background-color:#00afd6;
+    color: white
+
+}}
+
+[class="css-10trblm e1nzilvr1"]{{
+    font-family:sans-serif;
+    color: #00afd6;
+    font-weight: normal;
+
+}}
+
+[class="css-ompuv2 eqpbllx1"]{{
+    font-family:sans-serif;
+    color: #00afd6;
+    font-weight: bold;
+}}
+
+[class="streamlit-expanderHeader st-ae st-cm st-ag st-ah st-ai st-aj st-cn st-co st-cp st-cq st-cr st-cs st-ct st-ar st-as st-b6 st-b5 st-b3 st-cu st-cv st-cw st-b4 st-cx st-cy st-cz st-d0 st-d1"]{{
+    background-color:#dcdcdc;
+}}
+
+img{{
+    max-width:45%;
+    max-height: 100%;
+}}
+
+[data-testid="block-container"]{{
+    padding-top:60px
+}}
+
+
+</style>
+"""
+st.markdown(page_bg_img, unsafe_allow_html=True)
+# st.title("Churn Prediction App")
+
+st.image("KKBOXBSS.png", use_column_width=True)
+
+st.markdown("""<p style="font-family:sans-serif;color:#00afd6; font-size: 50px;"> Churn Prediction app</p>
+            <p style="font-family:sans-serif;color:#00afd6; font-size: 24px;"> Upload a csv file here</p>
+
+            """,unsafe_allow_html=True )
 
 
 package = joblib.load("model.pkl")
@@ -27,16 +96,23 @@ def main():
 
 
     # upload CSV file
-    st.sidebar.header('USER INPUT ')
-    uploaded_file = st.file_uploader("Upload a csv file here", type=["csv"])
+    uploaded_file = st.file_uploader("File must follow our template guidelines", type=["csv"])
 
     st.sidebar.markdown("""
-    **Instructions:**
+    <p style= "font-family:sans-serif;color:white; font-size: 24px;"> USER INPUT:</p>
+    <br/>
+    <p style= "font-family:sans-serif;color:white; font-size: 24px;"> Instructions:</p>
+
+
     1. Upload a CSV file containing the data you want to predict.
     2. The file should have the same columns as the training data.
     3. After uploading, click the 'Predict' button to see predictions.
-    """)
-    st.sidebar.header('DOWNLOAD TEMPLATE HERE')
+
+    <br/>
+
+    <p style= "font-family:sans-serif;color:white; font-size: 24px;"> Download template here</p>
+    """, unsafe_allow_html=True)
+
 
     template_data = pd.DataFrame({
     'msno': [0.0],
@@ -95,6 +171,7 @@ def main():
         mime="text/csv",
     )
 
+    # st.sidebar.image('KKBOX_WW.png', use_column_width=True)
 
 
 
@@ -153,13 +230,19 @@ def main():
                          title='Churn Distribution',
                         #  color_discrete_sequence=custom_colors
                          )
+            fig = px.pie(new, values=churn_counts.values, names=churn_counts.index, color=churn_counts.index,
+             color_discrete_map={'High risk Churn':'#EA5F89',
+                                 'Medium Risk Churn':'#F7B7A3',
+                                 'Low Risk Churn':'#8bd3c7',
+                                 })
+
             fig.update_traces(
                 textposition='outside',
                 textinfo='percent+label',
                 pull=[0.1, 0.1],
                 hole=0.3,
                 outsidetextfont=dict(size=14),
-                marker=dict(colors=custom_colors)
+                # marker=dict(colors=custom_colors)
                 )
             fig.update_layout(
                     title_font=dict(size=20),
@@ -184,84 +267,88 @@ def main():
             low_risk_df = risk_df[risk_df['Churn Risk'] == 'Low Risk']
 
             # Display risk categories in three separate columns
+
+
             st.subheader("Churn Risk Categories:")
 
             col1, col2, col3 = st.columns(3)
 
             with col1:
+                with st.expander("HIGH RISK LIST", expanded=False):
 
-                st.subheader('High Risk 🔴')
-                new_df_c1 = pd.DataFrame(high_risk_df["ID"])
-                col_1 = new_df_c1.to_csv()
-                # st.header(3, f'Users with a churn percentage greater than 90% are considered to be high risk cases')
-                # st.write(f'Number of high risk cases: {len(new_df_c1)}')
-                st.markdown(f"""
-                        - These are cases where the predicted probability of the target event (e.g., churn)
-                        is relatively high, indicating a strong likelihood of the event occurring.
-                        - Users with a churn percentage greater than or equal to 90%
-                        are considered to be high risk cases
-                        - High-risk cases often warrant immediate attention or
-                        intervention because they are most likely to result in the event of interest.
-                        - Number of high risk cases: {len(new_df_c1)}
+                    st.subheader('High Risk 🔴')
+                    new_df_c1 = pd.DataFrame(high_risk_df["ID"])
+                    col_1 = new_df_c1.to_csv()
+                    # st.header(3, f'Users with a churn percentage greater than 90% are considered to be high risk cases')
+                    # st.write(f'Number of high risk cases: {len(new_df_c1)}')
+                    st.markdown(f"""
+                            - These are cases where the predicted probability of the target event (e.g., churn)
+                            is relatively high, indicating a strong likelihood of the event occurring.
+                            - Users with a churn percentage greater than or equal to 90%
+                            are considered to be high risk cases
+                            - High-risk cases often warrant immediate attention or
+                            intervention because they are most likely to result in the event of interest.
+                            - Number of high risk cases: {len(new_df_c1)}
 
-                        """)
-                st.dataframe(new_df_c1.head(10),use_container_width=True, hide_index=True)
+                            """)
+                    st.dataframe(new_df_c1.head(10),use_container_width=True, hide_index=True)
 
 
-                ste.download_button(
-                    label="Download data as CSV",
-                    data=col_1,
-                    file_name='High_risk_df.csv',
-                    mime='text/csv',
-                )
+                    ste.download_button(
+                        label="Download data as CSV",
+                        data=col_1,
+                        file_name='High_risk_df.csv',
+                        mime='text/csv',
+                    )
 
             with col2:
-                st.subheader('Medium Risk 🟠')
-                new_df_c2 = pd.DataFrame(medium_risk_df["ID"])
-                col_2 = new_df_c2.to_csv(index=False, encoding='utf-8')
+                 with st.expander("MEDIUM RISK LIST", expanded=False):
+                    st.subheader('Medium Risk 🟠')
+                    new_df_c2 = pd.DataFrame(medium_risk_df["ID"])
+                    col_2 = new_df_c2.to_csv(index=False, encoding='utf-8')
 
-                st.markdown(f"""
-                        - These are cases where the predicted probability of the target
-                        event falls in an intermediate range.
-                        - Users with a churn percentage greater than or equal to 50%
-                        are considered to be medium risk cases
-                        - Medium-risk cases require monitoring and some level of
-                        intervention or retention efforts.
-                        - Number of medium risk cases: {len(new_df_c2)}
+                    st.markdown(f"""
+                            - These are cases where the predicted probability of the target
+                            event falls in an intermediate range.
+                            - Users with a churn percentage greater than or equal to 50%
+                            are considered to be medium risk cases
+                            - Medium-risk cases require monitoring and some level of
+                            intervention or retention efforts.
+                            - Number of medium risk cases: {len(new_df_c2)}
 
-                        """)
+                            """)
 
-                st.dataframe(new_df_c2.head(10),use_container_width=True, hide_index=True )
+                    st.dataframe(new_df_c2.head(10),use_container_width=True, hide_index=True )
 
-                ste.download_button(
-                    label="Download data as CSV",
-                    data=col_2,
-                    file_name='Medium_risk_df.csv',
-                    mime='text/csv',
-                )
+                    ste.download_button(
+                        label="Download data as CSV",
+                        data=col_2,
+                        file_name='Medium_risk_df.csv',
+                        mime='text/csv',
+                    )
 
             with col3:
-                st.subheader('Low Risk 🟢')
+                 with st.expander("LOW RISK LIST", expanded=False):
+                    st.subheader('Low Risk 🟢')
+                    new_df_c3 = pd.DataFrame(low_risk_df["ID"])
+                    col_3 = new_df_c3.to_csv(index=False, encoding='utf-8')
+                    st.markdown(f"""
+                            - These are cases where the predicted probability of the target event is relatively
+                            low, suggesting a low likelihood of the event occurring.
+                            - Users with a churn percentage less than 50% are considered to be low risk cases
+                            - Low-risk cases typically require less immediate attention and may not be the top
+                            priority for retention efforts.
+                            - Number of low risk cases: {len(new_df_c3)}
 
-                new_df_c3 = pd.DataFrame(low_risk_df["ID"])
-                col_3 = new_df_c3.to_csv(index=False, encoding='utf-8')
-                st.markdown(f"""
-                        - These are cases where the predicted probability of the target event is relatively
-                        low, suggesting a low likelihood of the event occurring.
-                        - Users with a churn percentage less than 50% are considered to be low risk cases
-                        - Low-risk cases typically require less immediate attention and may not be the top
-                        priority for retention efforts.
-                        - Number of low risk cases: {len(new_df_c3)}
+                            """)
+                    st.dataframe(new_df_c3.head(10),use_container_width=True, hide_index=True )
 
-                        """)
-                st.dataframe(new_df_c3.head(10),use_container_width=True, hide_index=True )
-
-                ste.download_button(
-                    label="Download data as CSV",
-                    data=col_3,
-                    file_name='Low_risk_df.csv',
-                    mime='text/csv',
-                )
+                    ste.download_button(
+                        label="Download data as CSV",
+                        data=col_3,
+                        file_name='Low_risk_df.csv',
+                        mime='text/csv',
+                    )
 
 
         # Hide streamlit style
